@@ -6,18 +6,16 @@ import sys
 import subprocess
 import os
 
-mapnik_config = 'mapnik-config'
-
 def check_output(args):
      output = subprocess.check_output(args).decode()
      return output.rstrip('\n')
 
 linkflags = []
-bin_path = os.path.join(check_output([mapnik_config, '--prefix']),'bin')
-lib_path = os.path.join(check_output([mapnik_config, '--prefix']),'lib')
-linkflags.extend(check_output([mapnik_config, '--libs']).split(' '))
-linkflags.extend(check_output([mapnik_config, '--ldflags']).split(' '))
-linkflags.extend(check_output([mapnik_config, '--dep-libs']).split(' '))
+bin_path = os.path.join(check_output(['pkg-config', '--variable=prefix', 'libmapnik']),'bin')
+lib_path = os.path.join(check_output(['pkg-config', '--variable=prefix', 'libmapnik']),'lib')
+linkflags.extend(check_output(['pkg-config', '--libs', 'libmapnik']).split(' '))
+linkflags.extend(check_output(['pkg-config', '--ldflags', 'libmapnik']).split(' '))
+linkflags.extend(check_output(['pkg-config', '--dep-libs', 'libmapnik']).split(' '))
 linkflags.extend([
     '-lmapnik-wkt',
     '-lmapnik-json',
@@ -33,9 +31,10 @@ f_paths = open('packaging/mapnik/paths.py', 'w')
 f_paths.write('import os\n')
 f_paths.write('\n')
 
+
 if os.environ.get('SYSTEM_MAPNIK'):
-     input_plugin_path = check_output([mapnik_config, '--input-plugins'])
-     font_path = check_output([mapnik_config, '--fonts'])
+     input_plugin_path = check_output(['pkg-config', '--variable=plugins_dir', 'libmapnik'])
+     font_path = check_output(['pkg-config', '--variable=fonts_dir', 'libmapnik'])
      f_paths.write("mapniklibpath = '{path}'\n".format(path=lib_path))
      f_paths.write("inputpluginspath = '{path}'\n".format(path=input_plugin_path))
      f_paths.write("fontscollectionpath = '{path}'\n".format(path=font_path))
@@ -49,7 +48,7 @@ else:
 f_paths.write("__all__ = [mapniklibpath,inputpluginspath,fontscollectionpath]\n")
 f_paths.close()
 
-extra_comp_args = check_output([mapnik_config, '--cflags']).split(' ')
+extra_comp_args = check_output(['pkg-config', '--cflags', 'libmapnik']).split(' ')
 extra_comp_args = list(filter(lambda arg: arg != "-fvisibility=hidden", extra_comp_args))
 
 if sys.platform == 'darwin':
@@ -59,6 +58,8 @@ else:
      linkflags.append('-Wl,-z,origin')
      linkflags.append('-Wl,-rpath=$ORIGIN/lib')
 
+extra_comp_args = list(filter(lambda arg: arg != "", extra_comp_args))
+linkflags = list(filter(lambda arg: arg != "", linkflags))
 
 ext_modules = [
      Pybind11Extension(
@@ -118,9 +119,9 @@ ext_modules = [
 ]
 
 if os.environ.get("CC", False) == False:
-    os.environ["CC"] = check_output([mapnik_config, '--cxx'])
+    os.environ["CC"] = 'c++'
 if os.environ.get("CXX", False) == False:
-    os.environ["CXX"] = check_output([mapnik_config, '--cxx'])
+    os.environ["CXX"] = 'c++'
 
 setup(
      name="mapnik",
