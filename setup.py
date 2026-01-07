@@ -14,8 +14,6 @@ linkflags = []
 bin_path = os.path.join(check_output(['pkg-config', '--variable=prefix', 'libmapnik']),'bin')
 lib_path = os.path.join(check_output(['pkg-config', '--variable=prefix', 'libmapnik']),'lib')
 linkflags.extend(check_output(['pkg-config', '--libs', 'libmapnik']).split(' '))
-linkflags.extend(check_output(['pkg-config', '--ldflags', 'libmapnik']).split(' '))
-linkflags.extend(check_output(['pkg-config', '--dep-libs', 'libmapnik']).split(' '))
 linkflags.extend([
     '-lmapnik-wkt',
     '-lmapnik-json',
