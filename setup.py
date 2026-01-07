@@ -40,7 +40,7 @@ else:
      os.symlink(bin_path, 'packaging/mapnik/bin')
      os.symlink(lib_path, 'packaging/mapnik/lib')
      os.makedirs("packaging/mapnik/lib/mapnik/fonts", exist_ok=True)
-     os.makedirs("packaging/mapnik/lib/mapnik/input", exist_ok=True")
+     os.makedirs("packaging/mapnik/lib/mapnik/input", exist_ok=True)
      f_paths.write("mapniklibpath = os.path.join(os.path.dirname(__file__), 'lib')\n")
      f_paths.write("inputpluginspath = os.path.join(os.path.dirname(__file__), 'lib/mapnik/input')\n")
      f_paths.write("fontscollectionpath = os.path.join(os.path.dirname(__file__), 'lib/mapnik/fonts')\n")
